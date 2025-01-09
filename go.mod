@@ -1,4 +1,4 @@
-module fs-api-go
+module core-api-go
 
 go 1.23.0
 

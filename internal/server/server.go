@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"fs-api-go/internal/database"
+	"core-api-go/internal/database"
 )
 
 type FiberServer struct {
@@ -15,8 +15,8 @@ type FiberServer struct {
 func New() *FiberServer {
 	server := &FiberServer{
 		App: fiber.New(fiber.Config{
-			ServerHeader: "fs-api-go",
-			AppName:      "fs-api-go",
+			ServerHeader: "core-api-go",
+			AppName:      "core-api-go",
 		}),
 
 		db: database.New(),

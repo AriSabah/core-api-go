@@ -1,8 +1,8 @@
 package main
 
 import (
+	"core-api-go/internal/server"
 	"fmt"
-	"fs-api-go/internal/server"
 	"os"
 	"strconv"
 

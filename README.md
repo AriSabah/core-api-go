@@ -1,4 +1,4 @@
-# Project fs-api-go
+# Project core-api-go
 
 One Paragraph of project description goes here
 
