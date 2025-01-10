@@ -213,9 +213,8 @@ func TestGenerateAuthenticationToken(t *testing.T) {
 }
 
 func TestParseAuthenticationToken(t *testing.T) {
-	token1 := token.New(authorizationKey)
 
-	authorizationData1, err := token1.Parse()
+	authorizationData1, err := token.Parse(authorizationKey)
 
 	if err != nil {
 		t.Fatalf("error while parsing token1, error: %s", err.Error())
@@ -231,9 +230,7 @@ func TestParseAuthenticationToken(t *testing.T) {
 		`, generatedAuthorizationKey, authorizationKey)
 	}
 
-	token2 := token.New(authorizationKey2)
-
-	authorizationData2, err := token2.Parse()
+	authorizationData2, err := token.Parse(authorizationKey2)
 
 	if err != nil {
 		t.Fatalf("error while parsing token2, error: %s", err.Error())
@@ -249,9 +246,7 @@ func TestParseAuthenticationToken(t *testing.T) {
 		`, generatedAuthorizationKey2, authorizationKey2)
 	}
 
-	token3 := token.New(authorizationKey3)
-
-	authorizationData3, err := token3.Parse()
+	authorizationData3, err := token.Parse(authorizationKey3)
 
 	if err != nil {
 		t.Fatalf("error while parsing token3, error: %s", err.Error())
@@ -265,5 +260,25 @@ func TestParseAuthenticationToken(t *testing.T) {
 			generated token: %s
 			expected token:  %s
 		`, generatedAuthorizationKey3, authorizationKey3)
+	}
+}
+
+func TestHasAccessTokenCheck(t *testing.T) {
+	hasAccess1 := token.HasAccess(authorizationKey, sections.WAITING_LIST, actions.ADMIN)
+
+	if !hasAccess1 {
+		t.Fatal("authorizationKey should have access to waitin list admin access")
+	}
+
+	hasAccess2 := token.HasAccess(authorizationKey2, sections.PERFORMANCE, actions.VIEW)
+
+	if hasAccess2 {
+		t.Fatal("authorizationKey2 should not have access to performance view")
+	}
+
+	hasAccess3 := token.HasAccess(authorizationKey3, sections.RIDERS, actions.EDIT)
+
+	if !hasAccess3 {
+		t.Fatal("authorizationKey3 should have access to rides edit access")
 	}
 }

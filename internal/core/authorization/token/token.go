@@ -2,6 +2,7 @@ package token
 
 import (
 	"core-api-go/internal/core/authorization"
+	"core-api-go/internal/core/authorization/actions"
 	"errors"
 	"fmt"
 	"strconv"
@@ -9,14 +10,122 @@ import (
 	"unicode"
 )
 
-type token struct {
-	key string
+func getSection(token string, section string) (sectionToken string, isExist bool) {
+	splitterIndex := strings.Index(token, "|")
+
+	if splitterIndex == -1 {
+		return "", false
+	}
+
+	mapIndex := 0
+	startIndex := splitterIndex + 1
+	endIndex := 0
+
+	for {
+		if mapIndex < splitterIndex {
+			nextCommaIndex := strings.Index(token[mapIndex:splitterIndex], ",")
+
+			if nextCommaIndex == -1 {
+				nextCommaIndex = splitterIndex - mapIndex
+			}
+
+			nextSectionIndex, err := strconv.Atoi(token[mapIndex : mapIndex+nextCommaIndex])
+
+			if err != nil {
+				return "", false
+			}
+
+			endIndex = splitterIndex + nextSectionIndex + 1
+			mapIndex += nextCommaIndex + 1
+		} else {
+			endIndex = len(token)
+		}
+
+		if token[startIndex:startIndex+2] == section {
+			return token[startIndex:endIndex], true
+		}
+
+		if endIndex == len(token) {
+			break
+		}
+
+		startIndex = endIndex
+	}
+
+	return "", false
 }
 
-func (t *token) Parse() (*authorization.AuthorizationMap, error) {
+func getNextLetterIndex(s string, from int) int {
+	for i := from; i < len(s); i++ {
+		if unicode.IsLetter(rune(s[i])) {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func getActionAccess(sectionToken string, action string) (accessType int, accessData []int, isExist bool) {
+	currentIndex := 1
+
+	for {
+		if currentIndex >= len(sectionToken) {
+			break
+		}
+
+		nextActionIndex := getNextLetterIndex(sectionToken, currentIndex+1)
+
+		if nextActionIndex == -1 {
+			nextActionIndex = len(sectionToken)
+		}
+
+		if (currentIndex == 1 && action == actions.VIEW) || string(sectionToken[currentIndex]) == action {
+			accessType, err := strconv.Atoi(string(sectionToken[currentIndex+1]))
+
+			if err != nil {
+				break
+			}
+
+			if currentIndex+2 != nextActionIndex {
+				ids := strings.Split(sectionToken[currentIndex+2:nextActionIndex], ".")
+
+				for _, id := range ids {
+					numId, err := strconv.Atoi(id)
+
+					if err != nil {
+						return -1, nil, false
+					}
+
+					accessData = append(accessData, numId)
+				}
+			}
+
+			return accessType, accessData, true
+		}
+
+		currentIndex = nextActionIndex
+	}
+
+	return -1, nil, false
+}
+
+func HasAccess(token string, section string, action string) bool {
+	sectionToken, isExist := getSection(token, section)
+	_, _, isExist = getActionAccess(sectionToken, action)
+
+	return isExist
+}
+
+func hasAccessGroupAll() {}
+
+func hasAccessGroupAny() {}
+
+func hasAccessToData() {}
+
+func Parse(token string) (*authorization.AuthorizationMap, error) {
 	authorizationData := authorization.New()
 
-	before, after, found := strings.Cut(t.key, "|")
+	before, after, found := strings.Cut(token, "|")
 
 	if !found {
 		return nil, errors.New("invalid token key")
@@ -109,8 +218,4 @@ func (t *token) Parse() (*authorization.AuthorizationMap, error) {
 	}
 
 	return &authorizationData, nil
-}
-
-func New(key string) *token {
-	return &token{key: key}
 }
