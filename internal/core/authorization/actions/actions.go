@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	VIEW       = "view"
-	ADD        = "add"
-	EDIT       = "edit"
-	DELETE     = "delete"
-	DOWNLOAD   = "download"
-	UPLOAD     = "upload"
-	ADMIN      = "admin"
-	STATISTICS = "statistics"
-	EXTRA      = "extra"
+	VIEW       = "V"
+	ADD        = "A"
+	EDIT       = "E"
+	DELETE     = "D"
+	DOWNLOAD   = "W"
+	UPLOAD     = "U"
+	ADMIN      = "M"
+	STATISTICS = "S"
+	EXTRA      = "X"
 )
 
 type Action struct {
@@ -23,6 +23,10 @@ type Action struct {
 }
 
 func (a *Action) GenerateKey() string {
+	if a.key == "V" {
+		return a.access.GenerateKey()
+	}
+
 	return a.key + a.access.GenerateKey()
 }
 
@@ -30,7 +34,7 @@ func getNameFromKey(key string) string {
 	name := "none"
 
 	switch key {
-	case "":
+	case "V":
 		name = "view"
 	case "A":
 		name = "add"
@@ -58,7 +62,7 @@ func getKeyFromName(name string) string {
 
 	switch name {
 	case "view":
-		key = ""
+		key = "V"
 	case "add":
 		key = "A"
 	case "edit":
