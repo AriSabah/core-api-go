@@ -116,9 +116,30 @@ func HasAccess(token string, section string, action string) bool {
 	return isExist
 }
 
-func hasAccessGroupAll() {}
+type Access struct {
+	Section string
+	Action  string
+}
 
-func hasAccessGroupAny() {}
+func HasAccessGroupAll(token string, accesses []Access) bool {
+	for _, access := range accesses {
+		if !HasAccess(token, access.Section, access.Action) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func HasAccessGroupAny(token string, accesses []Access) bool {
+	for _, access := range accesses {
+		if HasAccess(token, access.Section, access.Action) {
+			return true
+		}
+	}
+
+	return false
+}
 
 func hasAccessToData() {}
 

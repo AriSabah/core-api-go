@@ -282,3 +282,73 @@ func TestHasAccessTokenCheck(t *testing.T) {
 		t.Fatal("authorizationKey3 should have access to rides edit access")
 	}
 }
+
+func TestHasAccessGroupTokenCheck(t *testing.T) {
+	hasAccessGroupAll1 := token.HasAccessGroupAll(authorizationKey, []token.Access{
+		{
+			Section: sections.RIDERS,
+			Action:  actions.EDIT,
+		},
+		{
+			Section: sections.WAITING_LIST,
+			Action:  actions.EXTRA,
+		},
+		{
+			Section: sections.INTERVIEW,
+			Action:  actions.ADD,
+		},
+	})
+
+	if !hasAccessGroupAll1 {
+		t.Fatal("authorizationKey should have access to hasAccessGroupAll1")
+	}
+
+	hasAccessGroupAll2 := token.HasAccessGroupAll(authorizationKey, []token.Access{
+		{
+			Section: sections.RIDERS,
+			Action:  actions.EDIT,
+		},
+		{
+			Section: sections.PERFORMANCE,
+			Action:  actions.ADD,
+		},
+	})
+
+	if hasAccessGroupAll2 {
+		t.Fatal("authorizationKey3 should not have access to hasAccessGroupAll2")
+	}
+
+	hasAccessGroupAny1 := token.HasAccessGroupAny(authorizationKey, []token.Access{
+		{
+			Section: sections.WAREHOUSE,
+			Action:  actions.VIEW,
+		},
+		{
+			Section: sections.PAYROLL,
+			Action:  actions.UPLOAD,
+		},
+		{
+			Section: sections.INTERVIEW,
+			Action:  actions.ADD,
+		},
+	})
+
+	if !hasAccessGroupAny1 {
+		t.Fatal("authorizationKey should have access to hasAccessGroupAny1")
+	}
+
+	hasAccessGroupAny2 := token.HasAccessGroupAny(authorizationKey3, []token.Access{
+		{
+			Section: sections.WAREHOUSE,
+			Action:  actions.VIEW,
+		},
+		{
+			Section: sections.PAYROLL,
+			Action:  actions.UPLOAD,
+		},
+	})
+
+	if hasAccessGroupAny2 {
+		t.Fatal("authorizationKey3 should not have access to hasAccessGroupAny2")
+	}
+}
